@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        readinessProbe:
+{{ toYaml .Values.readinessProbe | indent 10 }}
+        volumeMounts:
+        - name: {{ .Values.emptyDir }}
+          mountPath: /{{ .Values.emptyDir }}
+      volumes:
+      - name: {{ .Values.emptyDir }}
+        emptyDir: {}
+...

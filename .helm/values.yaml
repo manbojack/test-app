@@ -1,0 +1,33 @@
+Hostname: test-app.local
+
+namespace: default
+
+replicas: 1
+
+image:
+  repository: dockeraxer/test-app
+  tag: latest
+
+emptyDir: uploads
+
+containerPort: 8000
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
+
+readinessProbe:
+  periodSeconds: 5
+  timeoutSeconds: 2
+  initialDelaySeconds: 10
+  httpGet:
+    path: /docs
+    port: 8000
+    scheme: HTTP
+    httpHeaders:
+    - name: host
+      value: test-app.local
