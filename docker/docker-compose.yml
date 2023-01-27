@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+
+    app:
+        build:
+            context: app/
+            dockerfile: Dockerfile
+        image: dockeraxer/test-app:v1.0
+        container_name: test-app
+        ports:
+            - "80:5000"
+        restart: always
+        depends_on:
+            - db
+
+    db:
+        build:
+            context: db/
+            dockerfile: Dockerfile
+        image: dockeraxer/test-app-db:v1.0
+        container_name: test-app-db
+        environment:
+            POSTGRES_HOST: "db"
+            POSTGRES_DB: "default_db"
+            POSTGRES_USER: "default_user"
+            POSTGRES_PASSWORD: "default_password"
+        expose:
+            - "5432"
+        restart: always
