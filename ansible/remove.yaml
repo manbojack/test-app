@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  vars:
+    name: 'test-app'
+    namespace: 'test'
+  collections:
+    - kubernetes.core
+
+  tasks:
+    - name: Remove App release and waiting suppression ending
+      helm:
+        name: "{{ name }}"
+        release_namespace: "{{ namespace }}"
+        state: absent
+        wait: true
+
+    - name: Remove Postgresql release and waiting suppression ending
+      helm:
+        name: "{{ name }}-db"
+        release_namespace: "{{ namespace }}"
+        state: absent
+        wait: true

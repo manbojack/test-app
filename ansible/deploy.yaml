@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  vars:
+    name: 'test-app'
+    namespace: 'test'
+    hostname: 'test-app.local'
+    repository: 'dockeraxer/test-app'
+    tag: 'v1.0'
+    postgresql_user: 'test_user'
+    postgresql_db: 'test_db'
+    postgresql_password: 'test_password'
+
+  collections:
+    - kubernetes.core
+
+  tasks:
+    - name: Deploy Postgresql
+      helm:
+        name: "{{ name }}-db"
+        create_namespace: yes
+        release_namespace: "{{ namespace }}"
+        chart_ref: ../helm/db
+        values:
+          image:
+            repository: "{{ repository }}-db"
+            tag: "{{ tag }}"
+          postgresql:
+            user: "{{ postgresql_user }}"
+            db: "{{ postgresql_db }}"
+            password: "{{ postgresql_password }}"
+          namespace: "{{ namespace }}"
+
+    - name: Deploy App
+      helm:
+        name: "{{ name }}"
+        create_namespace: yes
+        release_namespace: "{{ namespace }}"
+        chart_ref: ../helm/app
+        values:
+          replicas: 1
+          Hostname: "{{ hostname }}"
+          image:
+            repository: "{{ repository }}"
+            tag: "{{ tag }}"
+          postgresql:
+            user: "{{ postgresql_user }}"
+            db: "{{ postgresql_db }}"
+            password: "{{ postgresql_password }}"
+          namespace: "{{ namespace }}"
