@@ -1,0 +1,41 @@
+Hostname: localhost
+
+namespace: default
+
+replicas: 1
+
+image:
+  repository: dockeraxer/test-app
+  tag: v1.0
+
+selector:
+  matchLabels:
+    app: test-app
+
+containerPort: 5000
+
+postgresql:
+  host: 'default_db'
+  user: 'default_user'
+  db: 'default_db'
+  password: 'default_password'
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
+
+readinessProbe:
+  periodSeconds: 3
+  timeoutSeconds: 2
+  initialDelaySeconds: 3
+  httpGet:
+    path: /
+    port: 5000
+    scheme: HTTP
+    httpHeaders:
+    - name: host
+      value: test-app.local

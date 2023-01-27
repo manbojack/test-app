@@ -1,0 +1,23 @@
+namespace: default
+
+replicas: 1
+
+image:
+  repository: dockeraxer/test-app-db
+  tag: v1.0
+
+containerPort: 5432
+
+postgresql:
+  host: 'default_db'
+  user: 'default_user'
+  db: 'default_db'
+  password: 'default_password'
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
