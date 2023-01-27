@@ -12,3 +12,32 @@
 helm-чарты так же устанавливаются через этот плейбук.
 
 Демонстрировать работу не обязательно, достаточно прислать ссылку на репозиторий.
+
+---------------------------------------------------------------------------------------------------
+### Для запуска и проверки можно использовать minikube
+
+#### 1) Копируем проект и переходим в рабочую директорию:
+```bash
+git clone https://github.com/manbojack/test-app.git --branch=v1.0
+cd test-app/
+```
+
+#### 2) Запуск minikube:
+```bash
+minikube start \
+  && minikube addons enable ingress \
+  && minikube addons enable ingress-dns \
+  && minikube addons enable metrics-server
+```
+
+#### 3) Добавляем доменное имя в hosts:
+```bash
+sudo echo "$(minikube ip) test-app.local" >> /etc/hosts
+```
+
+#### 4) Запуск Helm Charts при помощи Ansible:
+```bash
+ansible-playbook ansible/deploy.yaml
+```
+
+#### 5) Открываем в браузере по [ссылке](http://test-app.local/). При обновлении страницы ip будет писаться в базу. Посмотреть все записанные ip в базу можем перейдя по [ссылке](http://test-app.local/get_all_ip)
