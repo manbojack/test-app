@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+
+    proxy:
+      image: ${IMAGE_URL}/proxy:${VER}
+      container_name: pm-proxy
+      ports:
+        - '80:80'
+
+    app:
+      image: ${IMAGE_URL}/app:${VER}
+      container_name: pm-app
+      env_file:
+        - .env
+      depends_on:
+        - db
+
+    docs:
+      image: ${IMAGE_URL}/docs:${VER}
+      container_name: pm-docs
+      env_file:
+        - .env
+      external_links:
+        - docs:docs.localhost
+
+    db:
+      image: ${IMAGE_URL}/db:${VER}
+      container_name: pm-db
+      env_file:
+        - .env
+      restart: always
+      volumes:
+        - ./data/db:/var/lib/postgresql/data

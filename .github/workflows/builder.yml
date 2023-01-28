@@ -1,0 +1,92 @@
+name: pm-app
+
+env:
+  IMAGES: "docs app db proxy"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+  POSTGRES_HOST: "db"
+  POSTGRES_DB: "postgres"
+  DOCKER_URL: "ghcr.io"
+  DOCKER_USER: "anton-devops"
+  DOCKER_PASSWORD: "password"
+  IMAGE_URL: "ghcr.io/anton-devops/pm-app"
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Git clone repository
+        uses: actions/checkout@v2
+      -
+        name: Login to Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.DOCKER_URL }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Create temp .env file
+        run: |
+          echo VER=${GITHUB_REF##*/} >> .env
+          echo WORKING_DIR=$(pwd) >> .env
+          echo DOCKER_URL=${{ env.DOCKER_URL }} >> .env
+          echo IMAGE_URL=${{ env.IMAGE_URL }} >> .env
+          echo POSTGRES_USER=${{ env.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo POSTGRES_HOST=${{ env.POSTGRES_HOST }} >> .env
+          echo POSTGRES_DB=${{ env.POSTGRES_DB }} >> .env
+          echo DOCKER_USER=${{ env.DOCKER_USER }} >> .env
+          echo DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} >> .env
+      -
+        name: Build images
+        run: |
+          set -e
+          . .env
+          for image in ${{ env.IMAGES }};do
+            cp -R * .github/docker/${image}
+            cd .github/docker/${image}
+            docker build -t ${{ env.IMAGE_URL }}/${image}:${VER} .;
+            cd ${WORKING_DIR}
+          done
+      -
+        name: Test containers
+        run: |
+          cp .github/docker-compose.yml .
+          docker-compose up -d;
+          docker exec pm-app go test
+          docker exec pm-app golangci-lint run .
+          for i in {1..20};do
+            if curl --silent -i localhost|grep '200 OK' >/dev/null;then
+              echo INFO: localhost is avalible
+              break
+            fi
+            echo "INFO: waiting localhost..."
+            sleep 2;
+          done
+          for i in {1..20};do
+            if curl --silent -i docs.localhost|grep '200 OK' >/dev/null;then
+              echo INFO: docs.localhost is avalible
+              break
+            fi
+            echo "INFO: waiting docs.localhost..."
+            sleep 2;
+          done
+      -
+        name: Push images to registry
+        run: |
+          set -e
+          . .env
+          for image in ${{ env.IMAGES }};do
+            docker push ${{ env.IMAGE_URL }}/${image}:${VER};
+          done
