@@ -1,15 +1,19 @@
 FROM python:3.10.6-alpine3.16 as base
-COPY . .
-WORKDIR /src
 
 FROM base as builder
+RUN mkdir /install
+COPY . .
+WORKDIR /src
 RUN apk add --update build-base \
-    && mkdir /install \
     && pip install --no-cache -r requirements.txt --prefix=/install && rm -rf __pycache__
 
 FROM base as runner
 EXPOSE 8000
+# Bellow line just for more comfortable debug:
+# RUN apk add --update bash --no-cache
 COPY --from=builder /install /usr/local
+WORKDIR src
+COPY src ./
 ENV APP_USER='anonymous' \
     APP_GROUP='anonymous' \
     K8S_EMPTY_DIR='/uploads'
