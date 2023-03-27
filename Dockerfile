@@ -9,8 +9,6 @@ RUN apk add --update build-base \
 
 FROM base as runner
 EXPOSE 8000
-# Bellow line just for more comfortable debug:
-# RUN apk add --update bash --no-cache
 COPY --from=builder /install /usr/local
 WORKDIR src
 COPY src ./
