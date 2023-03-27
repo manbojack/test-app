@@ -25,7 +25,7 @@
 
 #### 1) Копируем проект и переходим в рабочую директорию:
 ```bash
-git git clone https://github.com/manbojack/test-app.git --branch=v2.0
+git clone https://github.com/manbojack/test-app.git --branch=v2.0
 cd test-app/
 ```
 
