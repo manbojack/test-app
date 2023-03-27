@@ -25,7 +25,7 @@
 
 #### 1) Копируем проект и переходим в рабочую директорию:
 ```bash
-git clone https://gitlab.com/public_projects6/test-app.git
+git git clone https://github.com/manbojack/test-app.git --branch=v2.0
 cd test-app/
 ```
 
@@ -42,9 +42,15 @@ minikube start \
 sudo echo "$(minikube ip) test-app.local" >> /etc/hosts
 ```
 
-#### 4) Запуск Pod:
+#### 4) Создаём локальный docker образ для minikube:
+```bash
+eval $(minikube -p minikube docker-env)
+docker build -t dockeraxer/test-app .
+```
+
+#### 5) Запуск Pod:
 ```bash
 helm install test-app .helm/
 ```
 
-#### 5) Открываем [swagger](http://test-app.local/docs) и выполняем запросы из пункта "Проверка"
+#### 6) Открываем [swagger](http://test-app.local/docs) и выполняем запросы из пункта "Проверка"
